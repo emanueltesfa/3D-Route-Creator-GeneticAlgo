@@ -42,7 +42,6 @@ def crossover(parent1, parent2, start_index, end_index):
     return child 
 
 def agent(coordinate_list):
-
     return 0
 
 if __name__=="__main__":
