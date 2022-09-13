@@ -7,7 +7,7 @@ def create_init_pop(size, cities):
     pop_setup = [None] * 5
     pop_dict = {}
 
-    population = set()
+    population = []
     for k in range(100):
         for i in range(5):  # setting random val to value var
             pop_setup[i] = random.random()
@@ -18,18 +18,22 @@ def create_init_pop(size, cities):
 
         temp = dict(temp)
         temp = list(temp.keys())
-        population.add(temp)  # create list of dict
+        population.append(temp)  # create list of dict
         
-    print(population)
-    print(type(population))
+    # print(population)
+    # print(type(population))
 
-    return inital_population
+    return population
 
-def calc_fitness ():
+def calc_fitness (inital_population):
     score = 0 
+
+    for subarr in inital_population:
+        subarr
+    
     return score
 
-def create_mating_pool(population, rankList): 
+def create_mating_pool(population, rank_list): 
     matingPool  = [] 
     # your code goes here 
 
@@ -41,7 +45,12 @@ def crossover(parent1, parent2, start_index, end_index):
 
     return child 
 
-def agent(coordinate_list):
+def agent(size, cities):
+    num_of_loc = size 
+    coordinates = cities 
+    inital_pop = create_init_pop(size = num_of_loc, cities = coordinates)
+    print(inital_pop)
+    calc_fitness(inital_population=inital_pop)
     return 0
 
 if __name__=="__main__":
@@ -53,7 +62,6 @@ if __name__=="__main__":
         x = x.strip()
         input.append(x)
     input = input[1:]
-    create_init_pop(size = len(input), cities=input)
+    agent(size = len(input), cities=input)
 
     #agent(input)
-
