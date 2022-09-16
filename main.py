@@ -5,24 +5,44 @@ from main import *
 
 k = 100  # population size
 
-
 class Path():
     def __init__(self, path, total_fitness):
         self.path = path
         self.total_fitness = total_fitness
 
     def calc_fitness(self, inital_population):
-        print("reached calc fitness")
+        # (change to string )
+        final =  []
+        dist_arr = []
 
-        for i in range(k - 1):
-            temp1 = objs[i].path
-            temp2 = objs[i + 1].path[1]
+        #print(objs[0].path)
+        for i in range(100):
+            temp = objs[i].path
+            mid_store = []
+            for j in range(len(temp)):
+                mytuple = list(map(int, temp[j].split(' ')))
+                mid_store.append(mytuple)
+            final.append(mid_store)
+        #print(final[0][0][0])
+        
+        for i in range(k):
+            #print(len(point1))
+            dist = 0.0000000
+           
+            print(f"set {i} of 100")
+            for j in range(len(final[i])-1):
+                point1 = np.asarray(final[i][j])
+                point2 = np.asarray(final[i][j+1])
+                #print("Point1 is ", point1, " \n Point2 is ", point2)
+                dist += np.linalg.norm(point1 - point2)
+                #print("distance is ", dist)
+            dist_arr.append(dist)
+            setattr(objs[i], "total_fitness", dist)
+        print(dist_arr)
 
-            #print(temp1)
+ 
             #x = [int(i) for i in temp1]
-            #print(x)
             #temp1 = temp1.split(" ")
-            # print(temp1)
 
 
 objs = [Path(None, None) for i in range(100)]  # global list of objects
@@ -46,21 +66,12 @@ def crossover(parent1, parent2, start_index, end_index):
     # your code goes here
 
     return child
-    #path1.fitness(path2)
-
 
 
 def create_init_pop(size, cities):
     for i in range(k):
         np.random.shuffle(cities)
-        #objs[i].path = cities 
-        
         setattr(objs[i], 'path', list(cities))
-        #print(objs[i].path)
-
-    #print(objs[0].path)
-    #print(objs[1].path)
-
 
 # return score
 
@@ -70,8 +81,8 @@ def agent(size, cities):
     init_pop = create_init_pop(size = num_of_loc, cities = coordinates)
 
     path = Path(init_pop, 0 )
-    print(objs[0].path)
-    print(objs[99].path)
+    #print(objs[0].path)
+    #print(objs[99].path)
     path.calc_fitness(init_pop)
 
     return 0
