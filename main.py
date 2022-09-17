@@ -40,26 +40,12 @@ class Path():
             setattr(objs[i], "total_fitness", dist)
         
         #print(dist_arr)
-        
-        
-
-def sort (parameter):
-    print("Presort")
-    for i in range(len(objs)):
-        print(objs[i].total_fitness)
-    objs.sort(key=lambda x:x.total_fitness)
-    print("Post sort")
-    for i in range(len(objs)):
-        print(objs[i].total_fitness)
-        
-
- 
+        #  
             #x = [int(i) for i in temp1]
             #temp1 = temp1.split(" ")
 
 
 objs = [Path(None, None) for i in range(100)]  # global list of objects
-
 
 class Population():
     def __init__(self, size, parents, best):
@@ -92,14 +78,15 @@ def agent(size, cities):
     num_of_loc = size
     coordinates = cities
     init_pop = create_init_pop(size = num_of_loc, cities = coordinates)
-
     path = Path(init_pop, 0 )
-    #print(objs[0].path)
-    #print(objs[99].path)
     path.calc_fitness(init_pop)
-    sort("total_fitness")
+    objs.sort(key=lambda x:x.total_fitness)
 
+    
     return 0
+    
+def parse_input():
+    return 0 
 
 
 if __name__ == "__main__":
