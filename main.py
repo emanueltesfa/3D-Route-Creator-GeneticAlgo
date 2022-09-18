@@ -62,7 +62,7 @@ def create_mating_pool(population, rank_list):
 
 
 def crossover(parent1, parent2, start_index, end_index):
-    parent1 = [120 199 34], [137 199 93], [199 173 30], [144 39 130], [175 53 76], [153 196 97], [173 101 186]
+    # parent1 = [120 199 34], [137 199 93], [199 173 30], [144 39 130], [175 53 76], [153 196 97], [173 101 186]
     child = []
 
     return child
