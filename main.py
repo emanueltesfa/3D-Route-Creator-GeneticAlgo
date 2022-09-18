@@ -17,6 +17,13 @@ class Path():
         final = []
         dist_arr = []
 
+        for i in range(k):
+            temp = objs[i].path
+            mid_store = []
+            for j in range(len(temp)):
+                mytuple = list(map(int, temp[j].split(' ')))
+                mid_store.append(mytuple)
+            final.append(mid_store)
         # (final[0][0][0])
         total_cost = 0.00
         for i in range(k):
@@ -28,7 +35,7 @@ class Path():
 
             dist_arr.append(dist)
             objs[i].path_cost = dist
-            # setattr(objs[i], "path_cost", dist)
+            #setattr(objs[i], "path_cost", dist)
             total_cost += 1 / dist
 
         for i in range(k):
@@ -55,7 +62,7 @@ def create_mating_pool(population, rank_list):
 
 
 def crossover(parent1, parent2, start_index, end_index):
-    # parent1 = [120 199 34], [137 199 93], [199 173 30],[144 39 130], [175 53 76], [153 196 97], [173 101 186]
+    parent1 = [120 199 34], [137 199 93], [199 173 30], [144 39 130], [175 53 76], [153 196 97], [173 101 186]
     child = []
 
     return child
@@ -77,8 +84,8 @@ def agent(size, cities):
     path.calc_fitness(init_pop)
     objs.sort(key=lambda x: x.path_cost)
     idk = create_mating_pool(objs, None)
-    # print("idk is: ", idk.path, "\n Path cost is: ",
-    # idk.path_cost, "\n Fitness is: ", idk.fitness)
+    print("idk is: ", idk.path, "\n Path cost is: ",
+          idk.path_cost, "\n Fitness is: ", idk.fitness)
 
 
 def parse_input():
@@ -93,14 +100,15 @@ if __name__ == "__main__":
     f = open("Test_Cases/input.txt", 'r')
     for x in f:
         x = x.strip()
+        #temp = []
+        #temp = x.split(" ")
+
+        #x = [int(i) for i in temp]
+        # print(temp)
         input.append(x)
     input = input[1:]
     input = np.asarray(input)
-
-    final = []
-    for j in range(len(input)):
-        mytuple = list(map(int, input[j].split(' ')))
-        final.append(mytuple)
-    agent(size=len(final), cities=final)
+    # print((input))
+    agent(size=len(input), cities=input)
 
     # agent(input)
