@@ -12,6 +12,13 @@
 #  -  if( any path used twice) then (compare to input)
 #  - append first to end
 
+"""if offspring[0] == offspring[len(offspring)-1]:
+        print("end matches beginning")
+
+    else:
+        print("change end element")"""
+
+from itertools import permutations
 import random
 import numpy as np
 from main import *
@@ -27,7 +34,7 @@ class Path():
         self.fitness = fitness
 
     def calc_fitness(self):
-        print("in calc fitness")
+        # print("in calc fitness")
         # (change to string )
         dist_arr = []
         # (final[0][0][0])
@@ -38,7 +45,7 @@ class Path():
             for j in range(len(objs[i].path)-1):
                 point1 = np.asarray(objs[i].path[j])
                 point2 = np.asarray(objs[i].path[j+1])
-                #print("point 1 is :", (point1), "point 2 is: ", point2)
+                # print("point 1 is :", (point1), "point 2 is: ", point2)
                 dist += np.linalg.norm(point1 - point2)
             dist_arr.append(dist)
             objs[i].path_cost = dist
@@ -61,16 +68,58 @@ class Population():
         self.best = best
 
 
-def create_mating_pool(population, rank_list):
-    max = sum([c.fitness for c in population])
-    selection_probs = [c.fitness/max for c in population]
-    return (population[np.random.choice(len(population), p=selection_probs)]).path
+def mating_pool_two(population):
+    new_parents = []  # this is 10% of pop
+    population.sort(key=lambda x: x.path_cost)
+    for i in range(10):
+        print(objs[i].path_cost)
+        new_parents.append(objs[i].path)
+        objs.pop(i)
+    return new_parents
 
  # return matingPool
 
 
+def check_chromosome_validity(offspring, parent):
+    temp = offspring
+    bool_arr_parent = [False for i in range(len(parent))]
+
+    permutation, indices = np.unique(temp, axis=0, return_index=True)
+    indices.sort()
+    # print(indices)
+
+    # i want ... all indicies that need to repalced from parent to be false if they are missing in offspring
+    for item in range(len(parent)):
+        if parent[item] in offspring:  # if crossover array elem is in parent
+            bool_arr_parent[item] = True
+        else:
+            bool_arr_parent[item] = False
+    # given all indexs that need to be replace (indicies)
+    # iterate to each
+    # check bool_arr and which ever is first false(not used)
+    # get index from above and swap with parent[i]
+    # change bool to true
+
+    for i in range(len(parent)):
+        if i not in indices:
+            # print("i is: ", i)
+            # linear search for first bool that is false
+            for j in range(len(bool_arr_parent)):
+                if bool_arr_parent[j] == False:
+                    # print("j is ", j)
+                    offspring[i] = parent[j]
+                    bool_arr_parent[j] = True
+
+    perm, ind = np.unique(offspring, axis=0, return_index=True)
+    ind.sort()
+    print("Indexs that are valid after function: ", ind)
+
+
+    # print("\n Bool arr ", *bool_arr_parent)
+
+
 def crossover(parent1, parent2, start, end, size):
-    # parent1 = [120 199 34], [137 199 93], [199 173 30], [144 39 130], [175 53 76], [153 196 97], [173 101 186]
+    # parent1 = [120 199 34], [137 199 93], [199 173 30], [144 39 130], [175 53 76], [153 196 97], [0
     # start = 2 && end = 6
     # size = 7 ,, 0 - 6
     # sub = [199 173 30], [144 39 130], [175 53 76], [153 196 97], [173 101 186]
@@ -93,6 +142,7 @@ def crossover(parent1, parent2, start, end, size):
     _left = _parent2[:start]
     _right = _parent2[end:]
     _cross1 = [*_left, *_sub, *_right]
+    check_chromosome_validity(_cross1, parent1)
     offspring_paths += [_cross1]
 
     # print("\nParent 1: ", _parent, "\n_Sub arr", _sub, "\nParent 2: ", _parent2,  "start  : ", start,
@@ -103,6 +153,8 @@ def crossover(parent1, parent2, start, end, size):
     left = parent2[:start]
     right = parent2[end:]
     cross1 = [*left, *sub, *right]
+    check_chromosome_validity(cross1, parent1)
+
     offspring_paths += [cross1]
 
  # print to see parent and offspring
@@ -126,54 +178,75 @@ def Agent(size, cities):
     init_pop = create_init_pop(size=num_of_loc, cities=coordinates)
     path = Path(init_pop, 0.00, 0.00)
 
-    for y in range(k):
+    for y in range(5):
         path.calc_fitness()
         objs.sort(key=lambda x: x.path_cost)
 
-        parents, offspring, mom, dad = [], [], [], []
+        offspring, mom, dad = [], [], []
 
-        for j in range(10):
-            mom = create_mating_pool(objs, None)
-            dad = create_mating_pool(objs, None)
-            # print(type(mom))
-            parents.append(mom)
-            parents.append(dad)
+        mom = [x.path for x in objs[:10]]
+        dad = [x.path for x in objs[10:20]]
+        # print(len(mom))
+        # parents.append(mom)
+        # parents.append(dad)
 
-        # print(len(parents))
-        offspring += parents
-        for i in range(len(parents) - 1):
-            for j in range(int((len(parents) - 1)/6)):
+        # print(len(mom)+len(dad) - 1)
+        offspring += mom
+        offspring += dad
+        for i in range(len(mom)):
+            for j in range(len(dad)):
                 rand = random.randint(1, size - 3)
                 rand_temp = random.randint(rand + 1, size - 2)
 
-                offspring += crossover(parents[i],
-                                       parents[j], rand, rand_temp, size)
+                offspring += crossover(mom[i],
+                                       dad[j], rand, rand_temp, size)
 
-        #print("Offspring is: ", len(offspring))
+        # print("Offspring is: ", (offspring))
+        temp_arr = np.asarray(offspring)
+        # print(temp_arr.shape)
+        # print(len(objs))
 
         # print("objs before is: ", objs[i].path)
         if y != (k-1):
-            for i in range(k):
-                #objs[i].path, objs[i].path_cost, objs[i].fitness = None, None, None
-                objs[i].path = offspring[i]
+            for item in range(k):
+                # objs[i].path, objs[i].path_cost, objs[i].fitness = None, None, None
+                objs[item].path = offspring[item]
 
-        for i in range(k):
-            print(f"{y}   {i} objs is: ",
-                  objs[i].path, "Cost is: ", objs[i].path_cost)
+        # or i in range(k):
+         #   print(f"{y} Cost is: ", objs[i].path_cost)
+            # "  objs is: ", objs[i].pathçç)
+    return objs
 
 
 if __name__ == "__main__":
     # PASS IN INPUT.TXT
     input = []
-    f = open("Test_Cases/input.txt", 'r')
+    f = open("input.txt", 'r')
     for x in f:
         x = x.strip()
         input.append(x)
     input = input[1:]
     input = np.asarray(input)
-
+    f.close()
     final = []
     for j in range(len(input)):
         mytuple = list(map(int, input[j].split(' ')))
         final.append(mytuple)
-    Agent(size=len(final), cities=final)
+    population = Agent(size=len(final), cities=final)
+
+    # print((objs[0].path_cost))
+    # print((population[0].path_cost))
+    output = open("output.txt", "w")
+    for item in range(len(objs[0].path)):
+
+        temp = objs[0].path[item]
+        listToStr = ' '.join([str(item) for item in temp])
+        # print(type(listToStr))
+        # output.write(" ")
+        # output.write(str(objs[0].path_cost))
+        output.write(listToStr)
+        if item != (len(objs[0].path) - 1):
+            output.write("\n")
+
+    output.close()
+    # for i in range(k):
