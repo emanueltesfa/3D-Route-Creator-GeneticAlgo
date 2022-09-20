@@ -80,6 +80,49 @@ def mating_pool_two(population):
  # return matingPool
 
 
+<<<<<<< HEAD
+=======
+def check_chromosome_validity(offspring, parent):
+    temp = offspring
+    bool_arr_parent = [False for i in range(len(parent))]
+
+    permutation, unique_indices = np.unique(temp, axis=0, return_index=True)
+    unique_indices.sort()
+    print(unique_indices)
+
+    # i want ... all indicies that need to repalced from parent to be false if they are missing in offspring
+    for item in range(len(parent)):
+        if parent[item] in offspring:  # if crossover array elem is in parent
+            bool_arr_parent[item] = True
+        else:
+            bool_arr_parent[item] = False
+
+    # given all indexs that need to be replace (indicies)
+    # iterate to each
+    # check bool_parent_arr and which ever is first false(not used)
+    # get index from above and swap with parent[i]
+    # change bool to true
+
+    for i in range(len(parent)):
+        print("hi")
+        if i not in unique_indices:
+            # print("i is: ", i)
+            print("gello")
+            for j in range(len(bool_arr_parent)): # lin searc for first bool that is false ie. parent that hasn't been used
+                if bool_arr_parent[j] == False: # 
+                    print("how are we")
+                    # print("j is ", j)
+                    offspring[i] = parent[j] # change offspring at index where it isn't a unique index
+                    bool_arr_parent[j] = True # update the bool_arr to ensure same parent path isnt appeneded twice
+
+    perm, ind = np.unique(offspring, axis=0, return_index=True)
+    ind.sort()
+    print("Indexs that are valid after function: ", len(ind)) # should be all 50 indicies 
+
+    # print("\n Bool arr ", *bool_arr_parent)
+
+
+>>>>>>> d146798fc6279e40956c8a3d276d5d9c0a580473
 def crossover(parent1, parent2, start, end, size):
     # parent1 = [120 199 34], [137 199 93], [199 173 30], [144 39 130], [175 53 76], [153 196 97], [0
     # start = 2 && end = 6
@@ -115,7 +158,7 @@ def crossover(parent1, parent2, start, end, size):
     left = parent2[:start]
     right = parent2[end:]
     cross1 = [*left, *sub, *right]
-    check_chromosome_validity(cross1, parent1)
+    #check_chromosome_validity(cross1, parent1)
 
     offspring_paths += [cross1]
 
@@ -186,7 +229,11 @@ def Agent(size, cities):
     init_pop = create_init_pop(size=num_of_loc, cities=coordinates)
     path = Path(init_pop, 0.00, 0.00)
 
+<<<<<<< HEAD
     for y in range(k):
+=======
+    for y in range(3):
+>>>>>>> d146798fc6279e40956c8a3d276d5d9c0a580473
         path.calc_fitness()
         objs.sort(key=lambda x: x.path_cost)
 
@@ -220,8 +267,12 @@ def Agent(size, cities):
                 objs[item].path = offspring[item]
 
         # or i in range(k):
+<<<<<<< HEAD
         # print(f"{y} Cost is: ", objs[i].path_cost)
         # "  objs is: ", objs[i].pathçç)
+=======
+        print(f"{y} Cost is: ", objs[0].path_cost)
+>>>>>>> d146798fc6279e40956c8a3d276d5d9c0a580473
     return objs
 
 
