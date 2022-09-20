@@ -86,7 +86,7 @@ def check_chromosome_validity(offspring, parent):
 
     permutation, unique_indices = np.unique(temp, axis=0, return_index=True)
     unique_indices.sort()
-    # print(indices)
+    print(unique_indices)
 
     # i want ... all indicies that need to repalced from parent to be false if they are missing in offspring
     for item in range(len(parent)):
@@ -102,10 +102,13 @@ def check_chromosome_validity(offspring, parent):
     # change bool to true
 
     for i in range(len(parent)):
+        print("hi")
         if i not in unique_indices:
             # print("i is: ", i)
+            print("gello")
             for j in range(len(bool_arr_parent)): # lin searc for first bool that is false ie. parent that hasn't been used
                 if bool_arr_parent[j] == False: # 
+                    print("how are we")
                     # print("j is ", j)
                     offspring[i] = parent[j] # change offspring at index where it isn't a unique index
                     bool_arr_parent[j] = True # update the bool_arr to ensure same parent path isnt appeneded twice
@@ -141,7 +144,7 @@ def crossover(parent1, parent2, start, end, size):
     _left = _parent2[:start]
     _right = _parent2[end:]
     _cross1 = [*_left, *_sub, *_right]
-    #check_chromosome_validity(_cross1, parent1)
+    check_chromosome_validity(_cross1, parent1)
     offspring_paths += [_cross1]
 
     # print("\nParent 1: ", _parent, "\n_Sub arr", _sub, "\nParent 2: ", _parent2,  "start  : ", start,
@@ -177,7 +180,7 @@ def Agent(size, cities):
     init_pop = create_init_pop(size=num_of_loc, cities=coordinates)
     path = Path(init_pop, 0.00, 0.00)
 
-    for y in range(100):
+    for y in range(3):
         path.calc_fitness()
         objs.sort(key=lambda x: x.path_cost)
 
@@ -212,7 +215,7 @@ def Agent(size, cities):
                 objs[item].path = offspring[item]
 
         # or i in range(k):
-        print(f"{y} Cost is: ", objs[0].path_cost, "  objs is: ", objs[i].pathçç)
+        print(f"{y} Cost is: ", objs[0].path_cost)
     return objs
 
 
