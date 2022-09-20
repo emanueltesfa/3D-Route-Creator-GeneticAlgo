@@ -94,9 +94,10 @@ def check_chromosome_validity(offspring, parent):
             bool_arr_parent[item] = True
         else:
             bool_arr_parent[item] = False
+
     # given all indexs that need to be replace (indicies)
     # iterate to each
-    # check bool_arr and which ever is first false(not used)
+    # check bool_parent_arr and which ever is first false(not used)
     # get index from above and swap with parent[i]
     # change bool to true
 
@@ -113,7 +114,6 @@ def check_chromosome_validity(offspring, parent):
     perm, ind = np.unique(offspring, axis=0, return_index=True)
     ind.sort()
     print("Indexs that are valid after function: ", ind)
-
 
     # print("\n Bool arr ", *bool_arr_parent)
 
