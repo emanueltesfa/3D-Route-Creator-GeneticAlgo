@@ -72,50 +72,12 @@ def mating_pool_two(population):
     new_parents = []  # this is 10% of pop
     population.sort(key=lambda x: x.path_cost)
     for i in range(10):
-        print(objs[i].path_cost)
+        # print(objs[i].path_cost)
         new_parents.append(objs[i].path)
         objs.pop(i)
     return new_parents
 
  # return matingPool
-
-
-def check_chromosome_validity(offspring, parent):
-    temp = offspring
-    bool_arr_parent = [False for i in range(len(parent))]
-
-    permutation, indices = np.unique(temp, axis=0, return_index=True)
-    indices.sort()
-    # print(indices)
-
-    # i want ... all indicies that need to repalced from parent to be false if they are missing in offspring
-    for item in range(len(parent)):
-        if parent[item] in offspring:  # if crossover array elem is in parent
-            bool_arr_parent[item] = True
-        else:
-            bool_arr_parent[item] = False
-
-    # given all indexs that need to be replace (indicies)
-    # iterate to each
-    # check bool_parent_arr and which ever is first false(not used)
-    # get index from above and swap with parent[i]
-    # change bool to true
-
-    for i in range(len(parent)):
-        if i not in indices:
-            # print("i is: ", i)
-            # linear search for first bool that is false
-            for j in range(len(bool_arr_parent)):
-                if bool_arr_parent[j] == False:
-                    # print("j is ", j)
-                    offspring[i] = parent[j]
-                    bool_arr_parent[j] = True
-
-    perm, ind = np.unique(offspring, axis=0, return_index=True)
-    ind.sort()
-    print("Indexs that are valid after function: ", ind)
-
-    # print("\n Bool arr ", *bool_arr_parent)
 
 
 def crossover(parent1, parent2, start, end, size):
@@ -172,13 +134,59 @@ def create_init_pop(size, cities):
 # return score
 
 
+def check_chromosome_validity(offspring, parent):
+    # print(offspring)
+    # print(parent)
+
+    temp = offspring
+    bool_arr_parent = [False for i in range(len(parent))]
+
+    permutation, indices = np.unique(temp, axis=0, return_index=True)
+    indices.sort()
+    # print(len(indices))
+
+    # i want ... all indicies that need to repalced from parent to be false if they are missing in offspring
+    for item in range(len(parent)):
+        if parent[item] in offspring:  # if crossover array elem is in parent
+            bool_arr_parent[item] = True
+        else:
+            bool_arr_parent[item] = False
+
+    # given all indexs that need to be replace (indicies)
+    # iterate to each
+    # check bool_parent_arr and which ever is first false(not used)
+    # get index from above and swap with parent[i]
+    # change bool to true
+    # print("first loop is ", len(parent), "second is ", len(bool_arr_parent))
+    for i in range(len(parent)):
+        if i not in indices:
+            # print("i is: ", i)
+            # linear search for first bool that is false
+            for j in range(len(bool_arr_parent)):
+                if bool_arr_parent[j] == False:
+                    # print("j is ", j)
+                    offspring[i] = parent[j]
+                    bool_arr_parent[j] = True
+                    break
+    # print(offspring[0])
+    # offspring.append(offspring[0])
+    # print(len(offspring))
+    return offspring
+
+    # perm, ind = np.unique(offspring, axis=0, return_index=True)
+    # ind.sort()
+    # print("Indexs that are valid after function: ", len(ind))
+
+    # print("\n Bool arr ", *bool_arr_parent)
+
+
 def Agent(size, cities):
     num_of_loc = size
     coordinates = cities
     init_pop = create_init_pop(size=num_of_loc, cities=coordinates)
     path = Path(init_pop, 0.00, 0.00)
 
-    for y in range(5):
+    for y in range(k):
         path.calc_fitness()
         objs.sort(key=lambda x: x.path_cost)
 
@@ -197,12 +205,11 @@ def Agent(size, cities):
             for j in range(len(dad)):
                 rand = random.randint(1, size - 3)
                 rand_temp = random.randint(rand + 1, size - 2)
-
                 offspring += crossover(mom[i],
                                        dad[j], rand, rand_temp, size)
 
         # print("Offspring is: ", (offspring))
-        temp_arr = np.asarray(offspring)
+        #temp_arr = np.asarray(offspring)
         # print(temp_arr.shape)
         # print(len(objs))
 
@@ -213,8 +220,8 @@ def Agent(size, cities):
                 objs[item].path = offspring[item]
 
         # or i in range(k):
-         #   print(f"{y} Cost is: ", objs[i].path_cost)
-            # "  objs is: ", objs[i].pathçç)
+        # print(f"{y} Cost is: ", objs[i].path_cost)
+        # "  objs is: ", objs[i].pathçç)
     return objs
 
 
