@@ -18,7 +18,7 @@ import numpy as np
 import copy as cp
 import time
 
-k = 200  # population size
+k = 60  # population size
 
 
 class Path():
@@ -28,7 +28,6 @@ class Path():
         self.fitness = fitness
 
     def calc_fitness(self):
-
         dist_arr = []
         total_cost = 0.00
         for i in range(k):
@@ -40,11 +39,11 @@ class Path():
                 dist += np.linalg.norm(point1 - point2)
             dist_arr.append(dist)
             objs[i].path_cost = dist
-            total_cost += 1 / dist
+            #total_cost += 1 / dist
 
-        for i in range(k):
-            fitness = (1 / objs[i].path_cost) / total_cost
-            setattr(objs[i], "fitness", fitness)
+        #for i in range(k):
+        #    fitness = (1 / objs[i].path_cost) / total_cost
+        #    setattr(objs[i], "fitness", fitness)
 
 
 objs = [Path(None, None, None) for i in range(k)]  # global list of objects
@@ -55,84 +54,6 @@ class Population():
         self.size = size
         self.parents = parents
         self.best = best
-
-
-def mutate_2(parent):
-    rand1 = random.randint(1, len(parent) - 3)
-    rand2 = random.randint(rand1 + 1, len(parent) - 2)
-    # swap
-    temp = list(parent[rand1])
-    parent[rand1] = parent[rand2]
-    parent[rand2] = temp
-    return parent
-
-
-def crossover(parent1, parent2, start, end):
-    offspring_paths = []
-    _parent = parent1
-    _parent2 = parent2
-
-    if parent1 != parent2:
-        _sub = _parent[start:end]
-        _left, _right = [], []
-        _left = _parent2[:start]
-        _right = _parent2[end:]
-        _cross1 = [*_left, *_sub, *_right]
-        _cross1[-1] = _cross1[0]
-        # print(_cross1)
-        _cross1 = check_chromosome_validity(_cross1, parent1)
-        # print(len(_cross1))
-        offspring_paths += [_cross1]
-    else:
-        # or i in range(5):
-        _parent2 = mutate_2(parent2)
-        _sub = _parent[start:end]
-        _left, _right = [], []
-        _left = _parent2[:start]
-        _right = _parent2[end:]
-        _cross1 = [*_left, *_sub, *_right]
-        _cross1[-1] = _cross1[0]
-        # print(_cross1)
-
-        _cross1 = check_chromosome_validity(_cross1, parent1)
-        # print(len(_cross1))
-        offspring_paths += [_cross1]
-
-    if parent1 != parent2:
-        sub = parent1[start:end]
-        left, right = [], []
-        left = parent2[:start]
-        right = parent2[end:]
-        cross1 = [*left, *sub, *right]
-        cross1[-1] = cross1[0]
-        # print(cross1)
-        cross1 = check_chromosome_validity(cross1, parent1)
-        # print(len(cross1))
-        offspring_paths += [cross1]
-
-    else:
-        # for i in range(5):
-        parent2 = mutate_2(parent2)
-        sub = parent1[start:end]
-        left, right = [], []
-        left = parent2[:start]
-        right = parent2[end:]
-        cross1 = [*left, *sub, *right]
-        cross1[-1] = cross1[0]
-
-        cross1 = check_chromosome_validity(cross1, parent1)
-
-        # print(len(cross1))
-        offspring_paths += [cross1]
-
-        return offspring_paths
-    #
-
- # print to see parent and offspring
-    # print("\nParent 1: ", _parent, "\nParent 2: ",
-    # _parent2,  "\nFinal Offspring: ", offspring_paths)
-    # print(offspring_paths)
-    return offspring_paths
 
 
 def create_init_pop(size, cities):
@@ -174,62 +95,121 @@ def check_chromosome_validity(offspring, parent):
     return temp_offspring
 
 
-def mutate_3(parent):
-    rand1 = random.randint(1, len(parent) - 3)
-    rand2 = random.randint(rand1 + 1, len(parent) - 2)
-    mutated_parent = []
+def crossover(parent1, parent2, start, end):
+    offspring_paths = []
+    _parent = parent1
+    _parent2 = parent2
+
+    if parent1 != parent2:
+        _sub = _parent[start:end]
+        _left, _right = [], []
+        _left = _parent2[:start]
+        _right = _parent2[end:]
+        _cross1 = [*_left, *_sub, *_right]
+        _cross1[-1] = _cross1[0]
+        # print(_cross1)
+        _cross1 = check_chromosome_validity(_cross1, parent1)
+        # print(len(_cross1))
+        offspring_paths += [_cross1]
+    else:
+        # or i in range(5):
+        #print("first else ")
+        #print(np.array(_parent2).shape)
+        _parent2 = mutation(parent2)
+        _sub = _parent[start:end]
+        _left, _right = [], []
+        _left = _parent2[:start]
+        _right = _parent2[end:]
+        _cross1 = [*_left, *_sub, *_right]
+        _cross1[-1] = _cross1[0]
+        # print(_cross1)
+
+        _cross1 = check_chromosome_validity(_cross1, parent1)
+        # print(len(_cross1))
+        offspring_paths += [_cross1]
+
+    if parent1 != parent2:
+        sub = parent1[start:end]
+        left, right = [], []
+        left = parent2[:start]
+        right = parent2[end:]
+        cross1 = [*left, *sub, *right]
+        cross1[-1] = cross1[0]
+        # print(cross1)
+        cross1 = check_chromosome_validity(cross1, parent1)
+        # print(len(cross1))
+        offspring_paths += [cross1]
+
+    else:
+        # for i in range(5):
+        #print("second else")
+        parent2 = mutation(parent2)
+        sub = parent1[start:end]
+        left, right = [], []
+        left = parent2[:start]
+        right = parent2[end:]
+        cross1 = [*left, *sub, *right]
+        cross1[-1] = cross1[0]
+
+        cross1 = check_chromosome_validity(cross1, parent1)
+
+        # print(len(cross1))
+        offspring_paths += [cross1]
+
+        return offspring_paths
+    #
+
+ # print to see parent and offspring
+    # print("\nParent 1: ", _parent, "\nParent 2: ",
+    # _parent2,  "\nFinal Offspring: ", offspring_paths)
+    # print(offspring_paths)
+    return offspring_paths
+
+
+def mutation(parent):
+    original_parent = parent
+    #print("len parent", len(parent))
+    rand1 = random.randint(0, len(parent) - 3)
+    rand2 = random.randint(rand1 + 1, len(parent) - 1)
+    #print(rand1,rand2)
+
     if (np.random.randint(0, 2) == 0):
+        #print("swap")
+        temp = parent[rand1]
+        parent[rand1] = parent[rand2]
+        parent[rand2] = temp
+        
+    else:
+        #print("permutate subection")
+        offspring = np.random.permutation(parent[rand1:rand2])
+        parent[rand1:rand2] = [list(x) for x in offspring]
+    parent = check_chromosome_validity(parent,original_parent)
+    return parent
 
-        temp_objs = objs[rand1:rand2]
-        np.random.permutation()
-        # print(offspring)
-        mutated_parent[rand1:rand2] = [list(x) for x in parent]
-
-        # print("parent after:", mutated_parent)
-        return mutated_parent
-
-
-def mututation(parent):
-    # swap 2 indexs randomly
-    # scramble
-    # [[1, 5 ,8 ], [ 5 , 3 ,3 ], [3, 5, 5 ]
-
-    # print("Parent before:", parent)
-
-    rand1 = random.randint(1, len(parent) - 3)
-    rand2 = random.randint(rand1 + 1, len(parent) - 2)
-    # print("Rand1 ", rand1, "Rand2", rand2)
-
-    """if (np.random.randint(0, 2) == 0):
-        # print("enter shuffle")
-
-        temp_objs = objs[rand1:rand2]
-        np.random.permutation()
-        # print(offspring)
-        # parent[rand1:rand2] = [list(x) for x in offspring]
-
-       # print("parent after:", parent)
-    else:"""
-    temp = list(objs[rand1].path)
-    objs[rand1].path = list(objs[rand2].path)
-    objs[rand2].path = temp
-    # print("parent  after:", parent)
 
 
 def Agent(size, cities):
+    print(size)
     num_of_loc = size
     coordinates = cities
     init_pop = create_init_pop(size=num_of_loc, cities=coordinates)
     path = Path(init_pop, 0.00, 0.00)
+    
+    if size < 52:
+        temp_size = k *  12 #16
 
-    for y in range(k):
+    else:
+        temp_size = k * 6
+
+    for y in range(temp_size): # num evolutions 
         path.calc_fitness()
         objs.sort(key=lambda x: x.path_cost)
 
         offspring, mom, dad = [], [], []
-
-        mom = [x.path for x in objs[:15]]
-        dad = [x.path for x in objs[15:30]]
+        best = list(objs[0].path) 
+        offspring.append(best) 
+        mom = [x.path for x in objs[:5]]
+        dad = [x.path for x in objs[5:10]]
         # print(len(dad[0]))
         # parents.append(mom)
         # parents.append(dad)
@@ -237,41 +217,63 @@ def Agent(size, cities):
         # print(len(mom)+len(dad) - 1)
 
         # PUT MOM AND DAD THROUGH VALDIATION
-        if y < (k/2):
-            offspring += mom
-            offspring += dad
+        # if y < (k/2):
+        offspring += mom
+        offspring += dad
 
         for i in range(len(mom)):
-            for j in range(len(dad)):
-                rand = random.randint(1, size - 3)
-                rand_temp = random.randint(rand + 1, size - 2)
-                offspring += crossover(mom[i],
-                                       dad[j], rand, rand_temp)
+            #for i in range(len(dad)):
+            rand = random.randint(1, size - 3)
+            rand_temp = random.randint(rand + 1, size - 2)
+            offspring += crossover(mom[i],
+                                    dad[len(mom) - i -1], rand, rand_temp)
+            offspring += crossover(mom[i],
+                                    dad[i], rand, rand_temp)
+            offspring += crossover(mom[len(mom) - i- 1],
+                                    dad[i], rand, rand_temp)
+            offspring += crossover(mom[len(mom) - i- 1],
+                                    dad[len(mom) - i- 1], rand, rand_temp)
+            #print("[i]",np.array(mom[i]).shape)
+            #print("full", np.array(mom).shape)
+            temp = mutation(mom[i])
+            offspring.append(temp)
+            temp1 = mutation(dad[i])
+            offspring.append(temp1)
+            #print(len(temp1))
+            
+        #offspring += mututation(dad[i])
+            """ if np.random.randint(0, 3) == 0:
+            # print("mutate")
+                if np.random.randint(0, 2) == 0:
+                    mom[i] = mututation(mom[i])
+                else:
+                    mom[j] = mututation(mom[j])
+            elif np.random.randint(0, 3) == 1:
+            # print("mutate")
+                if np.random.randint(0, 2) == 0:
+                    dad[i] = mututation(dad[i])
+                else:
+                    dad[j] = mututation(dad[j])"""
+
+
+                
                 # print(np.random.randint(0, 2))
                 # print('Mom is ', np.array(mom).shape)
 
-            if np.random.randint(0, 3) == 0:
-                # print("mutate")
-                if np.random.randint(0, 2) == 0:
-                    mututation(mom[i])
-                else:
-                    mututation(mom[j])
-            elif np.random.randint(0, 3) == 1:
-                # print("mutate")
-                if np.random.randint(0, 2) == 0:
-                    mututation(dad[i])
-                else:
-                    mututation(dad[j])
-
+           
         # print("Offspring is: ", len(offspring))
         # temp_arr = np.asarray(offspring)
         # print(temp_arr.shape)
         # print(len(objs))
 
         # print("objs before is: ", objs[i].path)
-        np.random.shuffle(offspring)
+        offspring.sort()
+        # np.random.shuffle(offspring)
         if y != (k-1):
+       
             for item in range(k):
+                #print(" \n", mom[0])
+                offspring[item] = check_chromosome_validity(offspring[item], mom[0] )
                 # objs[i].path, objs[i].path_cost, objs[i].fitness = None, None, None
 
                 objs[item].path = offspring[item]
@@ -288,7 +290,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     input = []
-    f = open("input.txt", 'r')
+    f = open("input2.txt", 'r')
     for x in f:
         x = x.strip()
         input.append(x)
