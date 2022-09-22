@@ -13,12 +13,16 @@
 #  - append first to end
 
 
+# 0.8
+# 1.1
+# 1.1
+
 import random
 import numpy as np
 import copy as cp
 import time
 
-k = 60  # population size
+k = 180  # population size
 
 
 class Path():
@@ -39,11 +43,11 @@ class Path():
                 dist += np.linalg.norm(point1 - point2)
             dist_arr.append(dist)
             objs[i].path_cost = dist
-            #total_cost += 1 / dist
+            total_cost += 1 / dist
 
-        # for i in range(k):
-        #    fitness = (1 / objs[i].path_cost) / total_cost
-        #    setattr(objs[i], "fitness", fitness)
+        for i in range(k):
+            fitness = (1 / objs[i].path_cost) / total_cost
+            setattr(objs[i], "fitness", fitness)
 
 
 objs = [Path(None, None, None) for i in range(k)]  # global list of objects
@@ -167,7 +171,6 @@ def crossover(parent1, parent2, start, end):
 
 
 def mutation(parent):
-    original_parent = parent
     #print("len parent", len(parent))
     rand1 = random.randint(0, len(parent) - 3)
     rand2 = random.randint(rand1 + 1, len(parent) - 1)
@@ -183,32 +186,24 @@ def mutation(parent):
         #print("permutate subection")
         offspring = np.random.permutation(parent[rand1:rand2])
         parent[rand1:rand2] = [list(x) for x in offspring]
-    parent = check_chromosome_validity(parent, original_parent)
+
     return parent
 
 
 def Agent(size, cities):
-    print((cities))
     num_of_loc = size
     coordinates = cities
     init_pop = create_init_pop(size=num_of_loc, cities=coordinates)
     path = Path(init_pop, 0.00, 0.00)
 
-    if size < 52:
-        temp_size = k * 12  # 16
-
-    else:
-        temp_size = k * 6
-
-    for y in range(temp_size):  # num evolutions
+    for y in range(k):
         path.calc_fitness()
         objs.sort(key=lambda x: x.path_cost)
 
         offspring, mom, dad = [], [], []
-        best = list(objs[0].path)
-        offspring.append(best)
-        mom = [x.path for x in objs[:5]]
-        dad = [x.path for x in objs[5:10]]
+
+        mom = [x.path for x in objs[:15]]
+        dad = [x.path for x in objs[15:30]]
         # print(len(dad[0]))
         # parents.append(mom)
         # parents.append(dad)
@@ -257,20 +252,15 @@ def Agent(size, cities):
             # print(np.random.randint(0, 2))
             # print('Mom is ', np.array(mom).shape)
 
-        # print("Offspring is: ", len(offspring))
+        #print("Offspring is: ", len(offspring))
         # temp_arr = np.asarray(offspring)
         # print(temp_arr.shape)
         # print(len(objs))
 
         # print("objs before is: ", objs[i].path)
-        offspring.sort()
-        # np.random.shuffle(offspring)
+        np.random.shuffle(offspring)
         if y != (k-1):
-
             for item in range(k):
-                #print(" \n", mom[0])
-                offspring[item] = check_chromosome_validity(
-                    offspring[item], mom[0])
                 # objs[i].path, objs[i].path_cost, objs[i].fitness = None, None, None
 
                 objs[item].path = offspring[item]
@@ -287,7 +277,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     input = []
-    f = open("input2.txt", 'r')
+    f = open("input.txt", 'r')
     for x in f:
         x = x.strip()
         input.append(x)

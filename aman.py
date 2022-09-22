@@ -17,6 +17,8 @@
 # 1.1
 # 1.1
 
+from dis import dis
+from queue import Empty
 import random
 import numpy as np
 import copy as cp
@@ -39,15 +41,15 @@ class Path():
             for j in range(len(objs[i].path)-1):
                 point1 = np.asarray(objs[i].path[j])
                 point2 = np.asarray(objs[i].path[j+1])
-                # print("point 1 is :", (point1), "point 2 is: ", point2)
+                #print("point 1 is :", (point1), "point 2 is: ", point2)
                 dist += np.linalg.norm(point1 - point2)
             dist_arr.append(dist)
             objs[i].path_cost = dist
-            total_cost += 1 / dist
+            #total_cost += 1 / dist
 
-        for i in range(k):
-            fitness = (1 / objs[i].path_cost) / total_cost
-            setattr(objs[i], "fitness", fitness)
+        # for i in range(k):
+            #fitness = (1 / objs[i].path_cost) / total_cost
+            #setattr(objs[i], "fitness", fitness)
 
 
 objs = [Path(None, None, None) for i in range(k)]  # global list of objects
@@ -60,15 +62,101 @@ class Population():
         self.best = best
 
 
-def create_init_pop(size, cities):
+def create_init_pop1(size, cities):
+
+    print(cities)
+    # print(np.array(init_pop).shape)
     for i in range(k):
+
         np.random.shuffle(cities)
-        # print("Before, ", len(cities), cities[0], cities[-1])
         temp_cities = cp.deepcopy(cities)
         temp_cities.append(cities[0])
+        setattr(objs[i], 'path', temp_cities[i])
+    print(np.array(temp_cities).shape)
+
+
+def create_init_pop(size, cities):
+    #print("NN is :", nn_path, nn_dist)
+    #print('total cost is: ', total_cost, len(init_pop))
+    # t
+    # print(cities)
+    # print(np.array(init_pop).shape)
+    first = cities[0]
+    temp_cities = []
+    for i in range(k):
+        cities = np.roll(cities, 1, axis=0)
+        neighbor = nn(size, list(cities))
+        # print(neighbor)
+        temp_cities.append(neighbor)
+        # np.random.shuffle(cities)
+        # print("Before, ", len(cities), cities[0], cities[-1])
+        #temp_cities = cp.deepcopy(cities)
+        # temp_cities.append(cities[0])
         # print("after: ", len(cities), cities[0], cities[-1])
-        setattr(objs[i], 'path', list(temp_cities))
+        #[print(x) for x in temp_cities]
+        #temp_cities = [*temp_cities]
+
+        setattr(objs[i], 'path', temp_cities[i])
+        # print(objs[i].path)
+    # print(np.array(temp_cities).shape)
+
+
 # return score
+def nn(size, cities):
+    init_pop = []
+    # print(cities)
+
+    for j in range(size):
+        if len(cities) == 0:
+            break
+        # calc closest city
+        temp_list = []
+        nn_dist = 0.0
+        nn_path = []
+        pop_index = None
+        for i in range(size):
+            size_city = len(cities)
+            if i >= size_city:
+                break
+            dist = 0.000
+            if len(init_pop) != 0:
+                point1 = init_pop[-1]
+            else:
+                point1 = np.asarray(cities[j])
+            point2 = np.asarray(cities[i])
+
+            if i == 0 and j == 0:
+                temp_list.append(point1)
+                init_pop.append(list(point1))
+                # print(cities[i])
+                nn_path = list(point1)
+
+            dist += np.linalg.norm(point1 - point2)
+            if i == 1 or i == 0:
+                nn_dist = dist
+                if len(cities) > 1:
+                    nn_path = list(cities[1])
+                else:
+                    nn_path = list(cities[0])
+
+            # print("point 1 is :", (point1), "point 2 is: ",point2, "distance betwee 2 is: ", dist)
+
+            if nn_dist >= dist:
+                # set NN to new [point,dist]
+                nn_path = cities[i]
+                nn_dist = dist
+                pop_index = i
+
+        temp_list.append(nn_path)
+
+        init_pop.append(list(nn_path))
+        cities.pop(pop_index)
+        if j == 0:
+            cities.pop(0)
+        size1 = len(cities)
+    # print(init_pop)
+    init_pop.append(init_pop[0])
+    return init_pop
 
 
 def check_chromosome_validity(offspring, parent):
@@ -104,7 +192,8 @@ def crossover(parent1, parent2, start, end):
     _parent = parent1
     _parent2 = parent2
 
-    if parent1 != parent2:
+    #print("\n", parent1, "\n", parent2)
+    if (parent1 != parent2):
         _sub = _parent[start:end]
         _left, _right = [], []
         _left = _parent2[:start]
@@ -117,8 +206,8 @@ def crossover(parent1, parent2, start, end):
         offspring_paths += [_cross1]
     else:
         # or i in range(5):
-        #print("first else ")
-        #print(np.array(_parent2).shape)
+        # print("first else ")
+        # print(np.array(_parent2).shape)
         _parent2 = mutation(parent2)
         _sub = _parent[start:end]
         _left, _right = [], []
@@ -132,7 +221,7 @@ def crossover(parent1, parent2, start, end):
         # print(len(_cross1))
         offspring_paths += [_cross1]
 
-    if parent1 != parent2:
+    if (parent1 != parent2):
         sub = parent1[start:end]
         left, right = [], []
         left = parent2[:start]
@@ -146,7 +235,7 @@ def crossover(parent1, parent2, start, end):
 
     else:
         # for i in range(5):
-        #print("second else")
+        # print("second else")
         parent2 = mutation(parent2)
         sub = parent1[start:end]
         left, right = [], []
@@ -165,30 +254,29 @@ def crossover(parent1, parent2, start, end):
 
  # print to see parent and offspring
     # print("\nParent 1: ", _parent, "\nParent 2: ",
-    # _parent2,  "\nFinal Offspring: ", offspring_paths)
+    # _parent2,  "\nFinal Offspring: ", offspring_paths)clear
     # print(offspring_paths)
     return offspring_paths
 
 
 def mutation(parent):
-    #print("len parent", len(parent))
+    # print("len parent", len(parent))
     rand1 = random.randint(0, len(parent) - 3)
     rand2 = random.randint(rand1 + 1, len(parent) - 1)
-    #print(rand1,rand2)
+    # print(rand1,rand2)
 
     if (np.random.randint(0, 2) == 0):
-        #print("swap")
+        # print("swap")
         temp = parent[rand1]
         parent[rand1] = parent[rand2]
         parent[rand2] = temp
-        
+
     else:
-        #print("permutate subection")
+        # print("permutate subection")
         offspring = np.random.permutation(parent[rand1:rand2])
         parent[rand1:rand2] = [list(x) for x in offspring]
 
     return parent
-
 
 
 def Agent(size, cities):
@@ -217,26 +305,26 @@ def Agent(size, cities):
         offspring += dad
 
         for i in range(len(mom)):
-            #for i in range(len(dad)):
+            # for i in range(len(dad)):
             rand = random.randint(1, size - 3)
             rand_temp = random.randint(rand + 1, size - 2)
             offspring += crossover(mom[i],
-                                    dad[len(mom) - i -1], rand, rand_temp)
+                                   dad[len(mom) - i - 1], rand, rand_temp)
             offspring += crossover(mom[i],
-                                    dad[i], rand, rand_temp)
-            offspring += crossover(mom[len(mom) - i- 1],
-                                    dad[i], rand, rand_temp)
-            offspring += crossover(mom[len(mom) - i- 1],
-                                    dad[len(mom) - i- 1], rand, rand_temp)
-            #print("[i]",np.array(mom[i]).shape)
-            #print("full", np.array(mom).shape)
+                                   dad[i], rand, rand_temp)
+            offspring += crossover(mom[len(mom) - i - 1],
+                                   dad[i], rand, rand_temp)
+            offspring += crossover(mom[len(mom) - i - 1],
+                                   dad[len(mom) - i - 1], rand, rand_temp)
+            # print("[i]",np.array(mom[i]).shape)
+            # print("full", np.array(mom).shape)
             temp = mutation(mom[i])
             offspring.append(temp)
             temp1 = mutation(dad[i])
             offspring.append(temp1)
-            #print(len(temp1))
-            
-        #offspring += mututation(dad[i])
+            # print(len(temp1))
+
+        # offspring += mututation(dad[i])
             """ if np.random.randint(0, 3) == 0:
             # print("mutate")
                 if np.random.randint(0, 2) == 0:
@@ -250,13 +338,10 @@ def Agent(size, cities):
                 else:
                     dad[j] = mututation(dad[j])"""
 
+            # print(np.random.randint(0, 2))
+            # print('Mom is ', np.array(mom).shape)
 
-                
-                # print(np.random.randint(0, 2))
-                # print('Mom is ', np.array(mom).shape)
-
-           
-        #print("Offspring is: ", len(offspring))
+        # print("Offspring is: ", len(offspring))
         # temp_arr = np.asarray(offspring)
         # print(temp_arr.shape)
         # print(len(objs))
@@ -266,9 +351,9 @@ def Agent(size, cities):
         if y != (k-1):
             for item in range(k):
                 # objs[i].path, objs[i].path_cost, objs[i].fitness = None, None, None
-
+                #print("shape citites ", np.array(cities).shape)
                 objs[item].path = offspring[item]
-
+                # print(f"{y}")
         # or i in range(k):
         print(f"{y} Cost is: ", objs[i].path_cost)
 
