@@ -17,8 +17,7 @@
 # 1.1
 # 1.1
 
-from dis import dis
-from queue import Empty
+
 import random
 import numpy as np
 import copy as cp
@@ -366,7 +365,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     input = []
-    f = open("input.txt", 'r')
+    f = open("input2.txt", 'r')
     for x in f:
         x = x.strip()
         input.append(x)
