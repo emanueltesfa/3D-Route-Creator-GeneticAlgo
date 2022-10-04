@@ -23,7 +23,7 @@ import numpy as np
 import copy as cp
 import time
 
-k = 180  # population size
+k = 150  # population size
 
 
 class Path():
@@ -83,10 +83,20 @@ def create_init_pop(size, cities):
     first = cities[0]
     temp_cities = []
     for i in range(k):
-        cities = np.roll(cities, 1, axis=0)
-        neighbor = nn(size, list(cities))
-        # print(neighbor)
-        temp_cities.append(neighbor)
+        if i <= (k/2):
+            cities = np.roll(cities, 1, axis=0)
+            neighbor = nn(size, list(cities))
+            # print(neighbor)
+            temp_cities.append(neighbor)
+            setattr(objs[i], 'path', temp_cities[i])
+        else:
+            fake_cities = []
+            double_temp_cities = cp.deepcopy(cities)
+            np.random.shuffle(double_temp_cities)
+            fake_cities = list(cp.deepcopy(double_temp_cities))
+            fake_cities.append(double_temp_cities[0])
+            setattr(objs[i], 'path', fake_cities)
+
         # np.random.shuffle(cities)
         # print("Before, ", len(cities), cities[0], cities[-1])
         #temp_cities = cp.deepcopy(cities)
@@ -95,7 +105,7 @@ def create_init_pop(size, cities):
         #[print(x) for x in temp_cities]
         #temp_cities = [*temp_cities]
 
-        setattr(objs[i], 'path', temp_cities[i])
+       
         # print(objs[i].path)
     # print(np.array(temp_cities).shape)
 
@@ -287,11 +297,14 @@ def Agent(size, cities):
     for y in range(k):
         path.calc_fitness()
         objs.sort(key=lambda x: x.path_cost)
+        print(f"{y} Cost is: ", objs[0].path_cost)
+
 
         offspring, mom, dad = [], [], []
 
         mom = [x.path for x in objs[:15]]
         dad = [x.path for x in objs[15:30]]
+        objs[0].path = mom[0]
         # print(len(dad[0]))
         # parents.append(mom)
         # parents.append(dad)
@@ -300,6 +313,7 @@ def Agent(size, cities):
 
         # PUT MOM AND DAD THROUGH VALDIATION
         # if y < (k/2):
+        #print("mom index 0, best ",mom[0])
         offspring += mom
         offspring += dad
 
@@ -346,15 +360,15 @@ def Agent(size, cities):
         # print(len(objs))
 
         # print("objs before is: ", objs[i].path)
-        np.random.shuffle(offspring)
+        #np.random.shuffle(offspring)
+        # offspring.sort()
         if y != (k-1):
-            for item in range(k):
+            for item in range(k -1 ):
                 # objs[i].path, objs[i].path_cost, objs[i].fitness = None, None, None
                 #print("shape citites ", np.array(cities).shape)
-                objs[item].path = offspring[item]
+                objs[item +1].path = offspring[item]
                 # print(f"{y}")
         # or i in range(k):
-        print(f"{y} Cost is: ", objs[i].path_cost)
 
     return objs
 
@@ -378,17 +392,20 @@ if __name__ == "__main__":
         final.append(mytuple)
 
     population = Agent(size=len(final), cities=final)
-
+    objs.sort(key=lambda x: x.path_cost)
     output = open("output.txt", "w")
     for item in range(len(objs[0].path)):
 
         temp = objs[0].path[item]
+        temp_cost = objs[0].path_cost
         listToStr = ' '.join([str(item) for item in temp])
 
         output.write(listToStr)
+        
         if item != (len(objs[0].path) - 1):
             output.write("\n")
-
+    str = " " + str(temp_cost)
+    output.write(str)
     output.close()
     # for i in range(k):
     print("--- %s seconds ---" % (time.time() - start_time))
