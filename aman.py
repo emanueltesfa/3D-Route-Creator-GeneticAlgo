@@ -379,7 +379,7 @@ if __name__ == "__main__":
     start_time = time.time()
 
     input = []
-    f = open("input2.txt", 'r')
+    f = open("test_cases/input3.txt", 'r')
     for x in f:
         x = x.strip()
         input.append(x)
